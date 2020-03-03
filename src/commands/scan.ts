@@ -1,7 +1,9 @@
 import { Command, flags } from '@oclif/command'
 import axios, { AxiosResponse } from 'axios';
+import * as chalk from 'chalk';
 import Report from '../classes/report';
 import {intenseScan} from '../tools/scanTools';
+import IntenseScan from '../classes/intenseScan';
 export default class Scan extends Command {
     static description = 'Scan an API'
 
@@ -13,34 +15,42 @@ export default class Scan extends Command {
         help: flags.help({ char: 'h' }),
         // flag with a value (-n, --name=VALUE)
         target: flags.string({ char: 't', description: 'target to scan', required: true }),
+        shortlist: flags.boolean({ char: 's', description: 'use the shortlist for endpoints', required: true, default: true, allowNo: true}),
+        parameters: flags.boolean({ char: 'p', description: 'use extra parameters on endpoints', required: true, default: true, allowNo: true}),
     }
 
     static args = [{ name: 'file' }]
 
     async run() {
         const { args, flags } = this.parse(Scan)
-        console.log(` - Targetting: ${flags.target}`)
+        console.log(` - Targetting: ${chalk.cyan(flags.target)}`)
         let init: any;
         try {
-            init = await axios.post(flags.target);
+            init = await axios.get(flags.target);
 
         } catch (error) {
             //console.log(error)
         }
-        /*axios.post(flags.target).then(val => {
-            //console.log(val);
-        }).catch(err => {
-            //console.log(err)
-        })*/
-        console.log(init)
-        //const result = new Report(init);
-        intenseScan(flags.target);
-        if (/*this.validateStatus(init.status)*/true) {
-            console.log(` - Successfully connected to target`)
-            console.log(` - Gathering basic header information`)
-            console.log(` - Gathering path disclosures`)
-            //const str = init.data.match(/\/.*\.[\w:]+/g);
-            //console.log(str);
+        if (init) {
+            if (this.validateStatus(init.status) == true) {
+                console.log(` - Successfully connected to target`)
+                console.log(` - Gathering basic header information`)
+                //console.log(` - Gathering path disclosures`)
+                // TODO: get path disclosures for basic get
+                const result = new Report(init)
+                console.log(` - Target Powered by: ${chalk.cyan(result.poweredBy)}`)
+                console.log(` - Target Last Modified at: ${chalk.cyan(result.lastModified)}`)
+                if (result.cors == "*") {
+                    console.log(` - Target ${chalk.cyan('Not CORS protected')}`)
+                } else {
+                    console.log(` - Target ${chalk.cyan('Is CORS protected')}`)
+                }
+            }
+        }
+        console.log(flags.shortlist);
+        let intenseResult: IntenseScan | void = await intenseScan(flags.target, flags.shortlist, flags.parameters);
+        if (intenseResult) {
+            intenseResult.exportSummary();
         }
         //console.log(init);
     }
