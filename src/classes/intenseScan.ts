@@ -24,5 +24,7 @@ export default class IntenseScan {
         successUrls.forEach(e => {
             console.log(` ------ ${chalk.cyan(e)}`);
         })
+        //TODO: add verbose
+        // TODO: add compilation or urls / paths disclosures. (make sure compile all request + unique)
     }
 }
