@@ -5,7 +5,7 @@ export const formatDate = (date: Date, format: string, utc: boolean = false) => 
     var dddd = ["\x02", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var ddd = ["\x03", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    function ii(i, len = 0) {
+    function ii(i: any, len = 0) {
         var s = i + "";
         len = len || 2;
         while (s.length < len) s = "0" + s;
