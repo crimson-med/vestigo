@@ -23,7 +23,7 @@ homebrew vestigo
 Example:
 
 ```
-scan --target="https://127.0.0.1/" --method="GET" --no-shortlist 
+vestigo scan --target="https://127.0.0.1/" --method="GET" --no-shortlist 
   --report="HTML"
 ```
 
