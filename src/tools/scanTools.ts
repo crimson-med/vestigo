@@ -3,9 +3,10 @@ import * as crimsonProgressBar from 'crimson-progressbar';
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import VestigoResponse from '../classes/response';
 import IntenseScan from '../classes/intenseScan';
-import Axios from 'axios';
-export const intenseScan = async (target: string, shortlist = true, parameters = true ) => {
+import * as https from 'https';
+export const intenseScan = async (target: string, shortlist = true, parameters = true, method: string ) => {
     let endpoints = '';
+    // Load endpoint list
     if (shortlist) {
         endpoints = shortList;
     } else {
@@ -15,24 +16,43 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
     let counter = 0;
     console.log(" - Running intense scan")
     let promises: any[] = [];
+    // TODO: make a request queuing + proxy
     values.forEach((element): any => {
-        promises.push(axios.get(target+element));
-        if (parameters) {
-            promises.push(axios.get(target+element+'/0'));
-            promises.push(axios.get(target+element+'/1'));
-            promises.push(axios.get(target+element+'/10'));
+        const agent = new https.Agent({  
+            rejectUnauthorized: false
+          });
+        // Loading all the requests
+        if (method === "GET" || method === "BOTH") {
+            promises.push(axios.get(target+element, { httpsAgent: agent }));
+            if (parameters) {
+                promises.push(axios.get(target+element+'/0', { httpsAgent: agent }));
+                promises.push(axios.get(target+element+'/1', { httpsAgent: agent }));
+                promises.push(axios.get(target+element+'/10', { httpsAgent: agent }));
+            }
+        } 
+        if (method == "POST" || method === "BOTH") {
+            promises.push(axios.post(target+element));
+            if (parameters) {
+                promises.push(axios.post(target+element+'/0', { httpsAgent: agent }));
+                promises.push(axios.post(target+element+'/1', { httpsAgent: agent }));
+                promises.push(axios.post(target+element+'/10', { httpsAgent: agent }));
+            }
         }
+        
     })
+    // Map all promises
     const promisesResolved = promises.map(promise => promise.catch((error: any) => ({ error })))
-
+    // HACK
+    // Force check failed for the request
+    // The issue with chained promises is if a request is not status 200 OK
+    // It will break and wont finish the other requests.
+    // Here we force all of them to be bad requests then they all arrive in the catch.
     const checkFailed = (then: { ([someUrl, anotherUrl]: any): void; (arg0: any): any; }) => {
         return function (responses: any[]) {
             const someFailed = responses.some((response: { error: any; }) => response.error)
-
             if (someFailed) {
                 throw responses
             }
-
             return then(responses)
         }
     }
@@ -41,8 +61,9 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
         // regex for urls
         const str: any = payload.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g);
         // regex for paths
-        const str2: any = payload.match(/\/.*\.[\w:]+/g);
+        const str2: any = payload.match(/\/[a-zA-Z0-9\/\-_.]+\/[a-zA-Z0-9\/\-_.]+[^<>",:]/g);
         let results = [];
+        // If we have regex match push them to array
         if (str?.length > 0) {
             results.push(...str);
         }
@@ -51,28 +72,30 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
         }
         return results;
     }
-
+    // execute all the requests
    return await axios.all(promisesResolved)
         .then(checkFailed(([someUrl, anotherUrl]: any) => {
-            console.log('SUCCESS', someUrl, anotherUrl)
-            console.log("SUCCESS: "+someUrl.length+" / "+ values.length);
             return new IntenseScan();
         }))
         .catch((err) => {
-            //console.log("FAILED: "+err.length+" / "+ promises.length);
-            //console.log('FAIL', err[0])
+            // init counters
             let success = 0;
             let fail = 0;
             let round = 0;
             let pathsDisclosed: any[] = [];
             let results: VestigoResponse[] = [];
+            // For each request
             err.forEach((elem: AxiosResponse | any) => {
                 let pathed = [];
                 let result: VestigoResponse;
+                // If the request is valid
                 if (elem.status && validateStatus(elem.status)) {
+                    // Check we have data 
                     if (elem.data && elem.data !== "") {
+                        // Scan data for paths
                         pathed = scanData(elem.data)
                     }
+                    // Build a clean response class with good information
                     result = new VestigoResponse({
                         url: elem?.config?.url as string,
                         success: true,
@@ -83,12 +106,17 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
                         date: elem?.headers?.date as string,
                         urls: pathed
                     })
+                    // increment success counter
                     success++;
                 } else {
+                    // increment fail counter
                     fail++;
+                    // Check we have data 
                     if (elem?.error?.response?.data && elem.error.response.data.length > 0) {
+                        // Scan data for paths
                         pathed = scanData(elem.error.response.data)
                     }
+                    // Build a clean response class with good information
                     result = new VestigoResponse({
                         url: elem?.error?.response?.config?.url as string,
                         success: false,
@@ -107,30 +135,16 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
                 round++;
                 results.push(result);
             });
+            // Filter and create stuff
             pathsDisclosed = [...new Set(pathsDisclosed)];
             const resultsSuccess: VestigoResponse[] = results.filter(e => e.success == true);
             const resultsFail: VestigoResponse[] = results.filter(e => e.success == false);
             const final = new IntenseScan(fail, success, err.length, resultsSuccess, resultsFail);
             return final;
-            console.log(pathsDisclosed);
-            console.log(`SUCC ${success}`)
-            console.log(`FAIL ${fail}`)
-            console.log(`TOTAL ${err.length}`)
-            console.log(results);
         });
-    /*values.forEach(async (element) => {
-        //console.log(element)
-        try {
-            const test = await axios.get(target + element);
-            console.log(test)
-        } catch (error) {
-            console.log(error)
-        }
-
-        crimsonProgressBar.renderProgressBar(counter, values.length);
-        counter++;
-    });*/
 }
+
+// Simple HTTP status validation
 const validateStatus = (status: number) => {
     return status >= 200 && status < 300; // default
 }

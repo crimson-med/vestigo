@@ -19,12 +19,26 @@ export default class IntenseScan {
         console.log(` --- Successfull Requests: ${chalk.green(this.success)}`)
         console.log(` --- Failed Requests: ${chalk.green(this.fail)}`)
         console.log(` --- Total Requests: ${chalk.green(this.total)}`)
-        console.log(chalk.green(` --- Successfull Urls`));
+        console.log(` --- Successfull Urls:`);
         const successUrls = this.requestSuccess.map(e => e.url);
         successUrls.forEach(e => {
             console.log(` ------ ${chalk.cyan(e)}`);
         })
         //TODO: add verbose
-        // TODO: add compilation or urls / paths disclosures. (make sure compile all request + unique)
+    }
+
+    getUrlsSuccess() {
+        return this.requestSuccess.map(e => e.url);
+    }
+
+    getUrlsFail() {
+        return this.requestFail.map(e => e.url);
+    }
+
+    getAllPathsDisclosures() {
+        let paths: string[] = [];
+        this.requestSuccess.map(e => paths.push(...e.pathsDisclosed))
+        this.requestFail.map(e => paths.push(...e.pathsDisclosed))
+        return [... new Set(paths)];
     }
 }
