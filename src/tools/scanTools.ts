@@ -95,7 +95,7 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
                     // Check we have data 
                     if (elem.data && elem.data !== "") {
                         // Scan data for paths
-                        pathed = scanData(elem.data)
+                        pathed = scanData(elem.data) || []
                     }
                     // Build a clean response class with good information
                     result = new VestigoResponse({
@@ -116,7 +116,7 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
                     // Check we have data 
                     if (elem?.error?.response?.data && elem.error.response.data.length > 0) {
                         // Scan data for paths
-                        pathed = scanData(elem.error.response.data)
+                        pathed = scanData(elem.error.response.data) || []
                     }
                     // Build a clean response class with good information
                     result = new VestigoResponse({
