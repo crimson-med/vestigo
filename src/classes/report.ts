@@ -18,17 +18,24 @@ export default class Report {
     startDate: Date;
     endDate: Date;
     elapsedSeconds: number;
-    constructor(response: AxiosResponse) {
-        this.poweredBy = (response.headers['x-powered-by']) ? response.headers['x-powered-by'] : '';
-        this.cors = (response.headers['access-control-allow-origin']) ? response.headers['access-control-allow-origin'] : '';
-        this.lastModified = (response.headers['last-modified']) ? response.headers['last-modified'] : '';
-        this.contentType = (response.headers['content-type']) ? response.headers['content-type'] : '';
+    constructor(target: string) {
+        this.poweredBy = ""
+        this.cors = ""
+        this.lastModified = ""
+        this.contentType = ""
         this.intenseScan = new IntenseScan();
         this.flags = {};
         this.startDate = new Date();
         this.endDate = new Date();
         this.elapsedSeconds = 0;
-        this.target = "";
+        this.target = target;
+    }
+
+    loadFromResponse(response: AxiosResponse) {
+        this.poweredBy = (response.headers['x-powered-by']) ? response.headers['x-powered-by'] : '';
+        this.cors = (response.headers['access-control-allow-origin']) ? response.headers['access-control-allow-origin'] : '';
+        this.lastModified = (response.headers['last-modified']) ? response.headers['last-modified'] : '';
+        this.contentType = (response.headers['content-type']) ? response.headers['content-type'] : '';
     }
 
     exportSummary(type: ReportType = ReportType.MARKDOWN) {
@@ -63,10 +70,10 @@ export default class Report {
             <tr><td>Content Type</td><td>${this.contentType}</td></tr>`;
             let urls = this.intenseScan.getUrlsSuccess().reduce((accumulator: any, currentValue: any) => {
                 return accumulator+`<li>${currentValue}</li>`;
-            })
+            }, "")
             let paths = this.intenseScan.getAllPathsDisclosures().reduce((accumulator: any, currentValue: any) => {
                 return accumulator+`<li>${currentValue}</li>`;
-            })
+            }, "")
             template = template.replace("{url1}", urls);
             template = template.replace("{path1}", paths);
             template = template.replace("{params}", tempParams);

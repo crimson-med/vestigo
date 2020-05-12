@@ -44,7 +44,9 @@ export default class Scan extends Command {
         console.log(flags.method);
         console.log(` - ${chalk.green(formatDate(startDate, "dddd dd MMMM yyyy hh:mm"))}`)
         console.log(` - Targetting: ${chalk.cyan(flags.target)}`)
-        let init: any;
+        let init: any = null;
+        // init report
+        const finalReport = new Report(flags.target);
         // Try to contact base url
         try {
             // Disable SSL verification by default
@@ -54,30 +56,30 @@ export default class Scan extends Command {
             init = await axios.get(flags.target, { httpsAgent: agent });
         } catch (error) {
             if (error.code) {
-                console.log(error.code);
-            } else {
-                console.log(error)
-            }
+                console.log(`Error code: ${error.code}`);
+            } 
         }
         // If base url can be contacted start basic analysis
-        if (init) {
             // Init report
-            const finalReport = new Report(init);
-            // If status was valid keep going
-            if (this.validateStatus(init.status) == true) {
-                console.log(` - Successfully connected to target`)
-                console.log(` - Gathering basic header information`)
-                const result = new Report(init)
-                console.log(` - Target Powered by: ${chalk.cyan(result.poweredBy)}`)
-                console.log(` - Target Last Modified at: ${chalk.cyan(result.lastModified)}`)
-                if (result.cors == "*") {
-                    console.log(` - Target ${chalk.cyan('Not CORS protected')}`)
+            if (init) {
+                finalReport.loadFromResponse(init);
+                if (this.validateStatus(init.status) == true) {
+                    console.log(` - Successfully connected to target`)
+                    console.log(` - Gathering basic header information`)
+                    const result = new Report(init)
+                    console.log(` - Target Powered by: ${chalk.cyan(result.poweredBy)}`)
+                    console.log(` - Target Last Modified at: ${chalk.cyan(result.lastModified)}`)
+                    if (result.cors == "*") {
+                        console.log(` - Target ${chalk.cyan('Not CORS protected')}`)
+                    } else {
+                        console.log(` - Target ${chalk.cyan('Is CORS protected')}`)
+                    }
                 } else {
-                    console.log(` - Target ${chalk.cyan('Is CORS protected')}`)
+                    console.log(init)
+                    console.log(init.status)
                 }
             } else {
-                console.log(init)
-                console.log(init.status)
+                console.log("plop")
             }
             // Init an intense scan
             let intenseResult: IntenseScan | void = await intenseScan(flags.target, flags.shortlist, flags.parameters, flags.method);
@@ -97,9 +99,6 @@ export default class Scan extends Command {
                 console.log(` - ${chalk.green(formatDate(endDate, "dddd dd MMMM yyyy hh:mm"))}`)
                 console.log(` - Time Elapsed: ${chalk.green(finalReport.elapsedSeconds)} seconds`)
             }
-        }
-        
-
         //console.log(init);
     }
 

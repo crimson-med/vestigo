@@ -58,19 +58,21 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
     }
 
     const scanData = (payload: string) => {
-        // regex for urls
-        const str: any = payload.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g);
-        // regex for paths
-        const str2: any = payload.match(/\/[a-zA-Z0-9\/\-_.]+\/[a-zA-Z0-9\/\-_.]+[^<>",:]/g);
-        let results = [];
-        // If we have regex match push them to array
-        if (str?.length > 0) {
-            results.push(...str);
+        if (typeof payload == "string") {
+            // regex for urls
+            const str: any = payload.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g);
+            // regex for paths
+            const str2: any = payload.match(/\/[a-zA-Z0-9\/\-_.]+\/[a-zA-Z0-9\/\-_.]+[^<>",:]/g);
+            let results = [];
+            // If we have regex match push them to array
+            if (str?.length > 0) {
+                results.push(...str);
+            }
+            if (str2?.length > 0) {
+                results.push(...str2);
+            }
+            return results;
         }
-        if (str2?.length > 0) {
-            results.push(...str2);
-        }
-        return results;
     }
     // execute all the requests
    return await axios.all(promisesResolved)

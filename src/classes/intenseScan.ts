@@ -28,11 +28,19 @@ export default class IntenseScan {
     }
 
     getUrlsSuccess() {
-        return this.requestSuccess.map(e => e.url);
+        let result:string[] = [];
+        if (this.requestSuccess.length > 0) {
+            result = this.requestSuccess.map(e => e.url);
+        }
+        return result;
     }
 
     getUrlsFail() {
-        return this.requestFail.map(e => e.url);
+        let result:string[] = [];
+        if (this.requestFail.length > 0) {
+            result = this.requestFail.map(e => e.url);
+        }
+        return result;
     }
 
     getAllPathsDisclosures() {
