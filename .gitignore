@@ -105,3 +105,6 @@ dist
 
 # Lib of npm publish
 lib
+
+# Default reports
+reportFinal.*
