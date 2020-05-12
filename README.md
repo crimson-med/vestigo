@@ -75,4 +75,6 @@ Vestigo will by default generate a mardown report. You can use parameters to set
 - [ ] Make a request queuing + proxy
 - [ ] Add https://www.npmjs.com/package/listr for better logging
 - [ ] Add wp-admin to common path
+- [ ] Add release-it
+- [ ] Add homebrew distribution
 - [ ] Add parameter for choosing report save location
