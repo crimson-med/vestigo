@@ -2,7 +2,9 @@ import { AxiosResponse } from 'axios';
 import IntenseScan from './intenseScan';
 import { formatDate } from '../tools/dateFormatter';
 import * as fs from 'fs';
-
+import * as os from "os";
+import * as path from "path";
+import chalk = require('chalk');
 export enum ReportType {
     MARKDOWN,
     HTML
@@ -38,13 +40,15 @@ export default class Report {
         this.contentType = (response.headers['content-type']) ? response.headers['content-type'] : '';
     }
 
-    exportSummary(type: ReportType = ReportType.MARKDOWN) {
+    exportSummary(type: ReportType = ReportType.MARKDOWN, output:string|null = null) {
         let template: string = ``
         // Load Tepmplate
         if (type == ReportType.HTML) {
-            template = fs.readFileSync('./templates/report.html', 'utf8');
+            const pathed = path.join(__dirname, '../../templates/report.html');
+            template = fs.readFileSync(pathed, 'utf8');
         } else {
-            template = fs.readFileSync('./templates/report.md', 'utf8');
+            const pathed = path.join(__dirname, '../../templates/report.md');
+            template = fs.readFileSync(pathed, 'utf8');
         }
         // Override the classic info
         template = template.replace("{title}", this.flags.target);
@@ -77,8 +81,10 @@ export default class Report {
             template = template.replace("{url1}", urls);
             template = template.replace("{path1}", paths);
             template = template.replace("{params}", tempParams);
-            fs.writeFileSync("./reportFinal.html", template.toString());
-        } else {
+            const pathed = path.join(os.tmpdir(), 'vestigo/reportFinal.html');
+            fs.writeFileSync(pathed, template.toString());
+            console.log(` - Report Generated: ${chalk.green(pathed)}`)
+    } else {
                 tempParams = `|   Powered By   |   ${this.poweredBy}    |
 |   CORS   |   ${this.cors}    |
 |   Last Modified   |   ${this.lastModified}    |
@@ -86,7 +92,9 @@ export default class Report {
         template = template.replace("{url1}", this.intenseScan.getUrlsSuccess().join('\n- '));
         template = template.replace("{path1}", this.intenseScan.getAllPathsDisclosures().join('\n- '));
         template = template.replace("{params}", tempParams);
-        fs.writeFileSync("./reportFinal.md", template.toString());
+        const pathed = path.join(os.tmpdir(), 'vestigo/reportFinal.md');
+        fs.writeFileSync(pathed, template.toString());
+        console.log(` - Report Generated: ${chalk.green(pathed)}`)
         }
         
     }
