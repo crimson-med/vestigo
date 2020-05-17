@@ -6,6 +6,7 @@ import {intenseScan} from '../tools/scanTools';
 import IntenseScan from '../classes/intenseScan';
 import * as https from 'https';
 import {formatDate} from '../tools/dateFormatter';
+import  * as whois  from 'whois-json';
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 // TODO: get path disclosures for basic get
@@ -24,11 +25,13 @@ export default class Scan extends Command {
     ]
     static flags = {
         help: flags.help({ char: 'h' }),
-        target: flags.string({ char: 't', description: 'target to scan', required: true }),
         method: flags.enum({char: 'm', description: 'requet methods can be: GET, POST, BOTH', required: false, options: ["GET", "POST", "BOTH"], default: "POST" }),
-        shortlist: flags.boolean({ char: 's', description: 'use the shortlist for endpoints', required: true, default: true, allowNo: true}),
+        output: flags.string({char: 'o', description: 'specify the ouput directory'}),
         parameters: flags.boolean({ char: 'p', description: 'use extra parameters on endpoints', required: true, default: true, allowNo: true}),
         report: flags.enum({ char: 'r', description: 'type of report to generate', required: true, default: "MD", options: ["MD", "HTML"]}),
+        shortlist: flags.boolean({ char: 's', description: 'use the shortlist for endpoints', required: true, default: true, allowNo: true}),
+        target: flags.string({ char: 't', description: 'target to scan', required: true }),
+        whois: flags.boolean({char: 'w', description: 'perform who is request on the target', required: true, default: true, allowNo: true})
     }
 
     async run() {
@@ -59,6 +62,8 @@ export default class Scan extends Command {
                 console.log(`Error code: ${error.code}`);
             } 
         }
+        const reswhois = await whois('mederic.me');
+	    console.log(reswhois);
         // If base url can be contacted start basic analysis
             // Init report
             if (init) {
@@ -66,10 +71,9 @@ export default class Scan extends Command {
                 if (this.validateStatus(init.status) == true) {
                     console.log(` - Successfully connected to target`)
                     console.log(` - Gathering basic header information`)
-                    const result = new Report(init)
-                    console.log(` - Target Powered by: ${chalk.cyan(result.poweredBy)}`)
-                    console.log(` - Target Last Modified at: ${chalk.cyan(result.lastModified)}`)
-                    if (result.cors == "*") {
+                    console.log(` - Target Powered by: ${chalk.cyan(finalReport.poweredBy)}`)
+                    console.log(` - Target Last Modified at: ${chalk.cyan(finalReport.lastModified)}`)
+                    if (finalReport.cors == "*") {
                         console.log(` - Target ${chalk.cyan('Not CORS protected')}`)
                     } else {
                         console.log(` - Target ${chalk.cyan('Is CORS protected')}`)
@@ -79,7 +83,7 @@ export default class Scan extends Command {
                     console.log(init.status)
                 }
             } else {
-                console.log("plop")
+                console.log(` - Couldn't connect to base target`)
             }
             // Init an intense scan
             let intenseResult: IntenseScan | void = await intenseScan(flags.target, flags.shortlist, flags.parameters, flags.method);
@@ -94,8 +98,10 @@ export default class Scan extends Command {
                 finalReport.endDate = endDate;
                 finalReport.elapsedSeconds = (endDate.getTime() - startDate.getTime()) / 1000;
                 // Export reports
+                // command line report
                 intenseResult.exportSummary();
-                finalReport.exportSummary(reportType)
+                // file report
+                finalReport.exportSummary(reportType, flags.output)
                 console.log(` - ${chalk.green(formatDate(endDate, "dddd dd MMMM yyyy hh:mm"))}`)
                 console.log(` - Time Elapsed: ${chalk.green(finalReport.elapsedSeconds)} seconds`)
             }
