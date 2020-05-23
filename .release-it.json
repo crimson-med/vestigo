@@ -1,9 +1,5 @@
 {
-    "plugins": {
-        "@release-it/keep-a-changelog": {
-            "filename": "CHANGELOG.md"
-        }
-    },
+    "after:bump": "auto-changelog --template keepachangelog",
     "npm": {
         "publish": true
       }
