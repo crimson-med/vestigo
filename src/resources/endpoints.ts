@@ -182,6 +182,9 @@ verify
 view
 vulnerabilities
 widget
+wp-admin
+wp-content
+wp-includes
 `
 export const longList = `0
 00
