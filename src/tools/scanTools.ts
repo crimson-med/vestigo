@@ -1,8 +1,8 @@
-import {shortList, longList} from '../resources/endpoints';
+import {shortList, longList} from './../resources/endpoints';
 import * as crimsonProgressBar from 'crimson-progressbar';
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import VestigoResponse from '../classes/response';
-import IntenseScan from '../classes/intenseScan';
+import VestigoResponse from './../classes/response';
+import IntenseScan from './../classes/intenseScan';
 import * as https from 'https';
 export const intenseScan = async (target: string, shortlist = true, parameters = true, method: string ) => {
     let endpoints = '';

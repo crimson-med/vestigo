@@ -1,12 +1,10 @@
 import { AxiosResponse } from 'axios';
 import IntenseScan from './intenseScan';
-import { formatDate } from '../tools/dateFormatter';
+import { formatDate } from './../tools/dateFormatter';
 import * as fs from 'fs';
-import * as os from "os";
-import * as path from "path";
-import chalk = require('chalk');
-import { create_path, createTempDir } from '../tools/fileHandler';
-import '../string.extensions';
+import * as chalk from 'chalk';
+import { create_path, createTempDir } from './../tools/fileHandler';
+import './../string.extensions';
 export enum ReportType {
     MARKDOWN,
     HTML

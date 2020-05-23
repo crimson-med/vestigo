@@ -1,4 +1,4 @@
-import VestigoResponse from '../classes/response'
+import VestigoResponse from './../classes/response'
 import * as chalk from 'chalk';
 
 export default class IntenseScan {

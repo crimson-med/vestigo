@@ -1,14 +1,13 @@
 import { Command, flags } from '@oclif/command'
 import axios, { AxiosResponse } from 'axios';
 import * as chalk from 'chalk';
-import Report, { ReportType } from '../classes/report';
-import {intenseScan} from '../tools/scanTools';
-import IntenseScan from '../classes/intenseScan';
+import Report, { ReportType } from './../classes/report';
+import {intenseScan} from './../tools/scanTools';
+import IntenseScan from './../classes/intenseScan';
 import * as https from 'https';
-import {formatDate} from '../tools/dateFormatter';
+import {formatDate} from './../tools/dateFormatter';
 import  * as whois  from 'whois-json';
-import { create_path } from '../tools/fileHandler';
-import { isValidDomain } from '../tools/urlHandler';
+import { isValidDomain } from './../tools/urlHandler';
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 // TODO: get path disclosures for basic get
