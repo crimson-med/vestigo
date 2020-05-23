@@ -21,6 +21,7 @@
   "devDependencies": {
     "@oclif/dev-cli": "^1",
     "@oclif/test": "^1",
+    "@release-it/keep-a-changelog": "^1.0.1",
     "@types/chai": "^4",
     "@types/mocha": "^5",
     "@types/node": "^10",
