@@ -7,12 +7,13 @@ import IntenseScan from '../classes/intenseScan';
 import * as https from 'https';
 import {formatDate} from '../tools/dateFormatter';
 import  * as whois  from 'whois-json';
+import { create_path } from '../tools/fileHandler';
+import { isValidDomain } from '../tools/urlHandler';
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 // TODO: get path disclosures for basic get
 // TODO: set the ssl header on a flag
 // TODO: detect and render in the report if bad ssl check
-// TODO: add whois
 // TODO: add OS analysis from path disclosure
 // TODO: add port scan (known ports)
 //-----------------------------------------------------------------------------------------
@@ -31,7 +32,7 @@ export default class Scan extends Command {
         report: flags.enum({ char: 'r', description: 'type of report to generate', required: true, default: "MD", options: ["MD", "HTML"]}),
         shortlist: flags.boolean({ char: 's', description: 'use the shortlist for endpoints', required: true, default: true, allowNo: true}),
         target: flags.string({ char: 't', description: 'target to scan', required: true }),
-        whois: flags.boolean({char: 'w', description: 'perform who is request on the target', required: true, default: true, allowNo: true})
+        whois: flags.boolean({char: 'w', description: 'perform who is request on the target', required: true, default: false, allowNo: true})
     }
 
     async run() {
@@ -62,8 +63,24 @@ export default class Scan extends Command {
                 console.log(`Error code: ${error.code}`);
             } 
         }
-        const reswhois = await whois('mederic.me');
-	    console.log(reswhois);
+
+        if (flags.whois === true) {
+            if (isValidDomain(flags.target)) {
+                console.log(` - ${chalk.green('WHOIS VALID:')} supplied target is a valid domain, executing whois.`)
+                const whoisData = await whois(flags.target)
+                if (whoisData.error) {
+                    if (whoisData.note) {
+                        console.log(` - ${chalk.red('WHOIS ERROR:')} ${whoisData.note}.`)
+                    }
+                    console.log(` - ${chalk.red('WHOIS ERROR:')} ${whoisData.error}.`)
+                } else {
+                    finalReport.whois = finalReport.initWhois(whoisData);
+                }
+            } else {
+                console.log(` - ${chalk.red('WHOIS ERROR:')} supplied target is not a valid domain.`)
+            }
+        }
+
         // If base url can be contacted start basic analysis
             // Init report
             if (init) {
