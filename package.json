@@ -61,5 +61,8 @@
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\" --full-trace",
     "version": "oclif-dev readme && git add README.md"
   },
-  "types": "lib/index.d.ts"
+  "types": "lib/index.d.ts",
+  "resolutions": {
+    "whois-json/whois/optimist/minimist": "^1.2.5"
+  }
 }
