@@ -17,6 +17,10 @@ describe ("fileHandler", () => {
         const myResult = create_path(["test"], false);
         expect(myResult).to.contain("test")
     })
+    it(`create_path should have src/templates`, () => {
+        const myResult = create_path(["test"], false, true);
+        console.log(myResult)
+    })
     it(`doesTempDirExist should return boolean`, () => {
         expect(doesTempDirExist()).to.be.a('boolean')
     })
