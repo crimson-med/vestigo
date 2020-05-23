@@ -41,6 +41,7 @@ bugs
 build
 buy
 cart
+css
 change
 check
 checkout
@@ -48,6 +49,7 @@ client
 clients
 comment
 comments
+config
 connect
 contact
 create
@@ -75,9 +77,15 @@ get
 group
 help
 id
+image
+images
+inc
+includes
 info
 information
 ip
+javascript
+js
 key
 log
 login
@@ -132,6 +140,8 @@ show
 sign
 signin
 sign-in
+signup
+sign-up
 SPUser
 src
 SSoAuthLoginResponse
