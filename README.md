@@ -2,6 +2,18 @@
  
  A tool for exploring and investigating APIs and websites.
 
+ # IMPORTANT
+
+ ocliff with npm and vestigo is broken to use the tool clone the repo
+
+ # Dev Run
+
+ To run the tool once cloned use:
+
+ ```
+ bin/run scan --target="https://127.0.0.1/" --method="GET" --report="HTML" -w
+ ```
+
 # Installation
 
 You can install it globally with:
