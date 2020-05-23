@@ -59,6 +59,11 @@ Type of report to generate
 ```
 Use to use the long enpoint list (default on). If the shortlist is disabled Vestigo will use a long list of potential endpoints.
 
+```
+-w, --whois
+```
+Perform a whois on the provided domain name
+
 # Report
 
 Vestigo will by default generate a mardown report. You can use parameters to set the report format to HTML.
@@ -68,13 +73,11 @@ Vestigo will by default generate a mardown report. You can use parameters to set
 - [ ] Get path disclosures for basic get
 - [ ] Set the ssl header on a flag
 - [ ] Detect and render in the report if bad ssl check
-- [ ] Add whois
 - [ ] Add OS analysis from path disclosure
 - [ ] Add port scan (known ports)
 - [ ] Add verbose parameters
 - [ ] Make a request queuing + proxy
 - [ ] Add https://www.npmjs.com/package/listr for better logging
-- [ ] Add wp-admin to common path
 - [ ] Add release-it
 - [ ] Add homebrew distribution
 - [ ] Add parameter for choosing report save location

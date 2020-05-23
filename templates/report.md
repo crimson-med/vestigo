@@ -10,6 +10,15 @@ Vestigo was executed with the following flags
 | ---- | ----- |
 {flags}
 
+{whois}
+# whois
+
+| WHOIS PARAM | VALUE |
+| --------- | ----- |
+{whois-data}
+
+{/whois}
+
 ## About the target
 
 Here are the basic information collected on the main target.
