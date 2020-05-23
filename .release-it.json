@@ -2,5 +2,12 @@
     "after:bump": "auto-changelog --template keepachangelog",
     "npm": {
         "publish": true
+      },
+      "github": {
+        "release": true
+      },
+      "git": {
+        "tagName": "v${version}",
+        "pushRepo": "https://crimson-med@github.com/crimson-med/vestigo.git"
       }
 }
