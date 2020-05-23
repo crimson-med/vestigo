@@ -120,7 +120,7 @@ export default class Scan extends Command {
                 // file report
                 finalReport.exportSummary(reportType, flags.output)
                 console.log(` - ${chalk.green(formatDate(endDate, "dddd dd MMMM yyyy hh:mm"))}`)
-                console.log(` - Time Elapsed: ${chalk.green(finalReport.elapsedSeconds)} seconds`)
+                console.log(` - Time Elapsed: ${chalk.green(finalReport.elapsedSeconds.toString())} seconds`)
             }
         //console.log(init);
     }
