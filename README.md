@@ -39,6 +39,17 @@ vestigo scan --target="https://127.0.0.1/" --method="GET" --no-shortlist
   --report="HTML"
 ```
 
+As of now reports will be saved at:
+
+```
+~/.vestigo/<domain>/<ts>-vestigo.<extension>
+```
+
+- `<domain>` = hostname of the target or the ip
+- `<ts>` = timestamp of the scan finished
+- `<extension>` = extension chosen for report (md, html)
+
+
 # Options
 
 ```

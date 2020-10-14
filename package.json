@@ -1,13 +1,14 @@
 {
   "name": "vestigo",
   "description": "A tool for exploring and investigating APIs.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": "Mederic Burlet",
   "bin": {
     "vestigo": "./bin/run"
   },
   "bugs": "https://github.com/crimson-med/vestigo/issues",
   "dependencies": {
+    "@argus-inc/fluct": "https://github.com/argus-inc/fluct",
     "@oclif/command": "^1.6.1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^2",
