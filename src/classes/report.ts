@@ -1,10 +1,11 @@
 import { AxiosResponse } from 'axios';
 import IntenseScan from './intenseScan';
 import { formatDate } from './../tools/dateFormatter';
-import * as fs from 'fs';
 import * as chalk from 'chalk';
-import { create_path, createTempDir } from './../tools/fileHandler';
+import { FileHandler } from '@argus-inc/fluct';
+const fs = new FileHandler('.vestigo');
 import './../string.extensions';
+import { extractHostname } from '../tools/urlHandler';
 export enum ReportType {
     MARKDOWN,
     HTML
@@ -19,7 +20,7 @@ export interface WhoIs {
     registrantStreet: string
     registrantCity: string
     nameServer: string
-} 
+}
 export default class Report {
     reportType: ReportType;
     target: string;
@@ -46,19 +47,19 @@ export default class Report {
         this.target = target;
         this.whois = this.initWhois();
         this.reportType = ReportType.MARKDOWN
-        createTempDir();
+        //createTempDir();
     }
 
     initWhois(whoisObj: any = {}) {
-        const result =  {
+        const result = {
             domainName: whoisObj.domainName || "",
             registrarWhoisServer: whoisObj.registrarWhoisServer || "",
             registrar: whoisObj.registrar || "",
-            registrantName:  whoisObj.registrantName  || "",
-            registrantOrganization:  whoisObj.registrantOrganization  || "",
-            registrantStreet: whoisObj.registrantStreet  || "",
-            registrantCity:  whoisObj.registrantCity  || "",
-            nameServer:  whoisObj.nameServer  || ""
+            registrantName: whoisObj.registrantName || "",
+            registrantOrganization: whoisObj.registrantOrganization || "",
+            registrantStreet: whoisObj.registrantStreet || "",
+            registrantCity: whoisObj.registrantCity || "",
+            nameServer: whoisObj.nameServer || ""
         }
         return result
     }
@@ -70,18 +71,18 @@ export default class Report {
         this.contentType = (response.headers['content-type']) ? response.headers['content-type'] : '';
     }
 
-    exportSummary(type: ReportType = ReportType.MARKDOWN, output:string|null = null) {
+    exportSummary(type: ReportType = ReportType.MARKDOWN, output: string | null = null) {
         this.reportType = type;
         let template: string = ``
         // Load Tepmplate
         if (this.reportType == ReportType.HTML) {
-            const pathed = create_path(["../../templates/report.html"], false, true);
+            const pathed = fs.createPath(["templates/report.html"], false, true);
             console.log(pathed)
-            template = fs.readFileSync(pathed, 'utf8');
+            template = fs.read(pathed);
         } else {
-            const pathed = create_path(["../../templates/report.md"], false, true);
+            const pathed = fs.createPath(["templates/report.md"], false, true);
             console.log(pathed)
-            template = fs.readFileSync(pathed, 'utf8');
+            template = fs.read(pathed);
         }
         // Export basic informations
         template = this.exportBasics(template)
@@ -102,19 +103,19 @@ export default class Report {
     }
 
     exportFinalize(template: string) {
-        let pathed = create_path([`${+ new Date()}-vestigo.md`], true);
+        let pathed = fs.createPath([extractHostname(this.flags.target), `${+ new Date()}-vestigo.md`], true);
 
         if (this.reportType === ReportType.HTML) {
-            pathed = create_path([`${+ new Date()}-vestigo.html`], true);
+            pathed = fs.createPath([extractHostname(this.flags.target), `${+ new Date()}-vestigo.html`], true);
         }
-        fs.writeFileSync(pathed, template.toString());
+        fs.save(pathed, template.toString());
         console.log(` - Report Generated: ${chalk.green(pathed)}`)
     }
 
     exportPathsDisclosures(template: string) {
         if (this.reportType === ReportType.HTML) {
             let paths = this.intenseScan.getAllPathsDisclosures().reduce((accumulator: any, currentValue: any) => {
-                return accumulator+`<li>${currentValue}</li>`;
+                return accumulator + `<li>${currentValue}</li>`;
             }, "")
             template = template.replace("{path1}", paths);
         } else {
@@ -126,7 +127,7 @@ export default class Report {
     exportValidEndpoints(template: string) {
         if (this.reportType === ReportType.HTML) {
             let urls = this.intenseScan.getUrlsSuccess().reduce((accumulator: any, currentValue: any) => {
-                return accumulator+`<li>${currentValue}</li>`;
+                return accumulator + `<li>${currentValue}</li>`;
             }, "")
             template = template.replace("{url1}", urls);
         } else {
@@ -171,12 +172,12 @@ export default class Report {
         let isEmpty = true
         Object.values(this.whois).forEach((item) => {
             if (typeof item === "string" && item.length > 0) {
-                isEmpty =  false
+                isEmpty = false
             }
             if (typeof item === "object") {
                 Object.values(item).forEach((it) => {
                     if (typeof it === "string" && it.length > 0) {
-                        isEmpty =  false
+                        isEmpty = false
                     }
                 });
             }
@@ -185,7 +186,7 @@ export default class Report {
     }
 
 
-    
+
 
     generateTable(content: any): string {
         let table = ''
@@ -194,9 +195,9 @@ export default class Report {
                 value = JSON.stringify(value);
             }
             if (this.reportType == ReportType.HTML) {
-                table = table+`<tr><td>${key}</td><td>${value}</td></tr>`;
+                table = table + `<tr><td>${key}</td><td>${value}</td></tr>`;
             } else {
-                table = table+`|   ${key}   |   ${value}    |\n`
+                table = table + `|   ${key}   |   ${value}    |\n`
             }
         }
         return table

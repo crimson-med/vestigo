@@ -8,6 +8,7 @@
   },
   "bugs": "https://github.com/crimson-med/vestigo/issues",
   "dependencies": {
+    "@argus-inc/fluct": "https://github.com/argus-inc/fluct",
     "@oclif/command": "^1.6.1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^2",
