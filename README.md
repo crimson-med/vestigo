@@ -6,14 +6,6 @@
 
  ocliff with npm and vestigo is broken to use the tool clone the repo
 
- # Dev Run
-
- To run the tool once cloned use:
-
- ```
- bin/run scan --target="https://127.0.0.1/" --method="GET" --report="HTML" -w
- ```
-
 # Installation
 
 You can install it globally with:
@@ -26,8 +18,10 @@ yarn global add vestigo
 npm i -g vestigo
 ```
 
+Then run the tool
+
 ```
-homebrew vestigo
+vestigo
 ```
 
 # Running
@@ -90,6 +84,15 @@ Perform a whois on the provided domain name
 # Report
 
 Vestigo will by default generate a mardown report. You can use parameters to set the report format to HTML.
+
+
+# Dev Run
+
+To run the tool in dev mode use:
+
+```
+bin/run scan --target="https://127.0.0.1/" --method="GET" --report="HTML" -w
+```
 
 # To Do
 
