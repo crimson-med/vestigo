@@ -1,7 +1,7 @@
 {
   "name": "vestigo",
   "description": "A tool for exploring and investigating APIs.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Mederic Burlet",
   "bin": {
     "vestigo": "./bin/run"
