@@ -103,11 +103,16 @@ export default class Report {
     }
 
     exportFinalize(template: string) {
-        let pathed = fs.createPath([extractHostname(this.flags.target), `${+ new Date()}-vestigo.md`], true);
+        const mainPath = fs.createPath([extractHostname(this.flags.target)], true);
+        if (!fs.exists(mainPath)) {
+            fs.createDir(mainPath)
+        }
+        let pathed = `${mainPath}/${+ new Date()}-vestigo.md`
 
         if (this.reportType === ReportType.HTML) {
-            pathed = fs.createPath([extractHostname(this.flags.target), `${+ new Date()}-vestigo.html`], true);
+            pathed = `${mainPath}/${+ new Date()}-vestigo.html`
         }
+
         fs.save(pathed, template.toString());
         console.log(` - Report Generated: ${chalk.green(pathed)}`)
     }
