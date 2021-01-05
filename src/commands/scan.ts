@@ -33,7 +33,8 @@ export default class Scan extends Command {
         report: flags.enum({ char: 'r', description: 'type of report to generate', required: true, default: "MD", options: ["MD", "HTML"] }),
         shortlist: flags.boolean({ char: 's', description: 'use the shortlist for endpoints', required: true, default: true, allowNo: true }),
         target: flags.string({ char: 't', description: 'target to scan', required: true }),
-        whois: flags.boolean({ char: 'w', description: 'perform who is request on the target', required: true, default: false, allowNo: true })
+        whois: flags.boolean({ char: 'w', description: 'perform who is request on the target', required: true, default: false, allowNo: true }),
+        followRedirects: flags.integer({ char: 'f', description: 'number or redirects to follow', required: false, default: 1 })
     }
 
     async run() {
@@ -104,7 +105,7 @@ export default class Scan extends Command {
             console.log(` - Couldn't connect to base target`)
         }
         // Init an intense scan
-        let intenseResult: IntenseScan | void = await intenseScan(flags.target, flags.shortlist, flags.parameters, flags.method);
+        let intenseResult: IntenseScan | void = await intenseScan(flags.target, flags.shortlist, flags.parameters, flags.method, flags.followRedirects);
         // If init successfull
         if (intenseResult) {
             const endDate = new Date();

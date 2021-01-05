@@ -1,10 +1,10 @@
-import {shortList, longList} from './../resources/endpoints';
+import { shortList, longList } from './../resources/endpoints';
 import * as crimsonProgressBar from 'crimson-progressbar';
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import VestigoResponse from './../classes/response';
 import IntenseScan from './../classes/intenseScan';
 import * as https from 'https';
-export const intenseScan = async (target: string, shortlist = true, parameters = true, method: string ) => {
+export const intenseScan = async (target: string, shortlist = true, parameters = true, method: string, followRedirects: number) => {
     let endpoints = '';
     // Load endpoint list
     if (shortlist) {
@@ -18,27 +18,27 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
     let promises: any[] = [];
     // TODO: make a request queuing + proxy
     values.forEach((element): any => {
-        const agent = new https.Agent({  
+        const agent = new https.Agent({
             rejectUnauthorized: false
-          });
+        });
         // Loading all the requests
         if (method === "GET" || method === "BOTH") {
-            promises.push(axios.get(target+element, { httpsAgent: agent }));
+            promises.push(axios.get(target + element, { httpsAgent: agent, maxRedirects: followRedirects }));
             if (parameters) {
-                promises.push(axios.get(target+element+'/0', { httpsAgent: agent }));
-                promises.push(axios.get(target+element+'/1', { httpsAgent: agent }));
-                promises.push(axios.get(target+element+'/10', { httpsAgent: agent }));
-            }
-        } 
-        if (method == "POST" || method === "BOTH") {
-            promises.push(axios.post(target+element));
-            if (parameters) {
-                promises.push(axios.post(target+element+'/0', { httpsAgent: agent }));
-                promises.push(axios.post(target+element+'/1', { httpsAgent: agent }));
-                promises.push(axios.post(target+element+'/10', { httpsAgent: agent }));
+                promises.push(axios.get(target + element + '/0', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.get(target + element + '/1', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.get(target + element + '/10', { httpsAgent: agent, maxRedirects: followRedirects }));
             }
         }
-        
+        if (method == "POST" || method === "BOTH") {
+            promises.push(axios.post(target + element));
+            if (parameters) {
+                promises.push(axios.post(target + element + '/0', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.post(target + element + '/1', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.post(target + element + '/10', { httpsAgent: agent, maxRedirects: followRedirects }));
+            }
+        }
+
     })
     // Map all promises
     const promisesResolved = promises.map(promise => promise.catch((error: any) => ({ error })))
@@ -75,7 +75,7 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
         }
     }
     // execute all the requests
-   return await axios.all(promisesResolved)
+    return await axios.all(promisesResolved)
         .then(checkFailed(([someUrl, anotherUrl]: any) => {
             return new IntenseScan();
         }))

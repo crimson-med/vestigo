@@ -45,3 +45,8 @@ Use to use the long enpoint list (default on). If the shortlist is disabled Vest
 -w, --whois
 ```
 Perform a whois on the provided domain name
+
+```
+-f, --followRedirects
+```
+Specify a number of redirects to follow. `0` will not follow redirects.
