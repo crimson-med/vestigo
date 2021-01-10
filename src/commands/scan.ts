@@ -34,7 +34,8 @@ export default class Scan extends Command {
         shortlist: flags.boolean({ char: 's', description: 'use the shortlist for endpoints', required: true, default: true, allowNo: true }),
         target: flags.string({ char: 't', description: 'target to scan', required: true }),
         whois: flags.boolean({ char: 'w', description: 'perform who is request on the target', required: true, default: false, allowNo: true }),
-        followRedirects: flags.integer({ char: 'f', description: 'number or redirects to follow', required: false, default: 1 })
+        followRedirects: flags.integer({ char: 'f', description: 'number or redirects to follow', required: false, default: 1 }),
+        schema: flags.string({ description: 'Specify a URL schema for the scan with the `{payload}` parameter', required: false })
     }
 
     async run() {
@@ -44,6 +45,11 @@ export default class Scan extends Command {
         const { args, flags } = this.parse(Scan)
         // Fix url with end slash
         flags.target = (flags.target.charAt(flags.target.length - 1) !== "/") ? flags.target + '/' : flags.target;
+        // Check if schema exists and has payload
+        if (flags.schema && !flags.schema.includes(`{payload}`)) {
+            console.log(` - ${chalk.red("URL schema does not contain `{payload}` the URL should look like this: `https://mpg.football/?type={payload}`")}`)
+            return false
+        }
         // Convert string report typ to actual type
         const reportType = (flags.report === "MD") ? ReportType.MARKDOWN : ReportType.HTML;
         // Logging
@@ -105,7 +111,7 @@ export default class Scan extends Command {
             console.log(` - Couldn't connect to base target`)
         }
         // Init an intense scan
-        let intenseResult: IntenseScan | void = await intenseScan(flags.target, flags.shortlist, flags.parameters, flags.method, flags.followRedirects);
+        let intenseResult: IntenseScan | void = await intenseScan(flags.target, flags.shortlist, flags.parameters, flags.method, flags.followRedirects, flags.schema);
         // If init successfull
         if (intenseResult) {
             const endDate = new Date();

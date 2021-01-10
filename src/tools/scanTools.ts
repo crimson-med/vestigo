@@ -4,7 +4,7 @@ import axios, { AxiosResponse, AxiosError } from 'axios';
 import VestigoResponse from './../classes/response';
 import IntenseScan from './../classes/intenseScan';
 import * as https from 'https';
-export const intenseScan = async (target: string, shortlist = true, parameters = true, method: string, followRedirects: number) => {
+export const intenseScan = async (target: string, shortlist = true, parameters = true, method: string, followRedirects: number, schema: string | null = null) => {
     let endpoints = '';
     // Load endpoint list
     if (shortlist) {
@@ -21,21 +21,28 @@ export const intenseScan = async (target: string, shortlist = true, parameters =
         const agent = new https.Agent({
             rejectUnauthorized: false
         });
+        let compiledUrl = target
+        if (schema !== null) {
+            compiledUrl = schema.replace(`{payload}`, element)
+        } else {
+            compiledUrl = target + element
+        }
         // Loading all the requests
         if (method === "GET" || method === "BOTH") {
-            promises.push(axios.get(target + element, { httpsAgent: agent, maxRedirects: followRedirects }));
+            console.log(`------- targetting: ${compiledUrl}`)
+            promises.push(axios.get(compiledUrl, { httpsAgent: agent, maxRedirects: followRedirects }));
             if (parameters) {
-                promises.push(axios.get(target + element + '/0', { httpsAgent: agent, maxRedirects: followRedirects }));
-                promises.push(axios.get(target + element + '/1', { httpsAgent: agent, maxRedirects: followRedirects }));
-                promises.push(axios.get(target + element + '/10', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.get(compiledUrl + '/0', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.get(compiledUrl + '/1', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.get(compiledUrl + '/10', { httpsAgent: agent, maxRedirects: followRedirects }));
             }
         }
         if (method == "POST" || method === "BOTH") {
-            promises.push(axios.post(target + element));
+            promises.push(axios.post(compiledUrl));
             if (parameters) {
-                promises.push(axios.post(target + element + '/0', { httpsAgent: agent, maxRedirects: followRedirects }));
-                promises.push(axios.post(target + element + '/1', { httpsAgent: agent, maxRedirects: followRedirects }));
-                promises.push(axios.post(target + element + '/10', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.post(compiledUrl + '/0', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.post(compiledUrl + '/1', { httpsAgent: agent, maxRedirects: followRedirects }));
+                promises.push(axios.post(compiledUrl + '/10', { httpsAgent: agent, maxRedirects: followRedirects }));
             }
         }
 
